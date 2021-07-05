@@ -10,7 +10,6 @@ void main() => runApp(MaterialApp(
 ));
 
 class MyHomePage extends StatefulWidget {
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -41,10 +40,37 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<bool> _handleBack(context) async {
+    if (await _webViewController.canGoBack()) {
+      print('can go back');
+      _webViewController.goBack();
+      return Future.value(false);
+    } else {
+      return (await showDialog(
+        context: context,
+        builder: (context) => new AlertDialog(
+          title: new Text('Are you sure?'),
+          content: new Text('Do you want to exit iSeeTalk App'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: new Text('No'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: new Text('Yes'),
+            ),
+          ],
+        ),
+      )) ?? Future.value(true);
+      return Future.value(true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () => _exitApp(context),
+      onWillPop: () => _handleBack(context),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: SafeArea(
